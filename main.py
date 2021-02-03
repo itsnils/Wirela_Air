@@ -1,5 +1,3 @@
-# sudo nano /etc/rc.local
-
 import smbus
 from scd30_i2c import SCD30
 import time
@@ -18,7 +16,14 @@ import os
 
 
 class wirela_air():
+
     def __init__(self):
+        """
+        This is a module that runs on a Raspberry Pi Zero. It will read various sensors
+        (carbon dioxide, temperature, humidity and the VOC (in process) to average the values and display on an
+        OLED display. to the help come two LED displays and two buttons.
+        Also a buzzer is built so that is alarmed at a horchen CO2 value.
+        """
         # Watchdog
         self.software_watchdog = True
         self.hardware_watchdog = True # todo not yet implemented - under development
@@ -94,7 +99,7 @@ class wirela_air():
         self.diagnosis_ative = True
         self.connect_to_internet = False
         if self.diagnosis_ative == True:
-            self.diagnosis = diawira.Wirela_Diagnosis()
+            self.diagnosis = dia_wirela.Wirela_Diagnosis()
 
     def read_ini_data(self):
         data = open('wirela_init.txt', 'r')
