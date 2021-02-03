@@ -19,7 +19,7 @@ class Wirela_Diagnosis():
             self.user = str(value[2])
             self.password = str(value[3])
             self.db = str(value[4])
-            self.my_db = pymysql.connect(host="twisy.i234.me", port=3306, user="diagnosis", passwd="wirela_air", db="Wirela_Air")
+            self.my_db = pymysql.connect(host="x", port=3306, user="diagnosis", passwd="x", db="Wirela_Air")
             self.sql_cursor = self.my_db.cursor()
             self.eth_mac = get_mac_address()
         except:
