@@ -9,5 +9,106 @@ In addition, it is planned that the VOC (volatile organic compounds) value of th
 
 ![](Images/Wirela%20back.PNG)
 
-<img src="Images/Wirela.PNG"
+# Overview
+Wirela Air is based on a Raspberry Pi Zero and the following components are soldered on a board.
+* Sensirion SCD30
+* Sensirion SHT30
+* Sensirion SGP40
+* OLED Display 128x64 0.96'' (SSD1306)
+* 2 x Dotsar LED
+* Buzzer (GPIO 21)
+* Button 1 (+) (GPIO x)
+* Button 2 (-) (GPIO x)
+* USB - C input.
+
+
 # Instalazion
+* Take the micro SD card and insert it into your card reader on the PC
+* write the micro SD card with the newest Raspberry Pi OS Lite
+* Take the micro SD card out of the card reader and put it again into the PC.
+* a drive appears. there you create a file one extension with the name SSH.
+* to continue the installation you have to connect the raspberry pi to the network/internet. to do this you create a file called wpa_supplicant.conf on the pc. in this file you write the following commands:
+````
+country=CH
+ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
+update_config=1
+
+network={
+       ssid="xxxxxxx"
+       psk="xxxxxx"
+       key_mgmt=WPA-PSK
+}
+````
+
+* Save the file and load the file in the same drive as you have already loaded the SSH file.
+
+* take the microSD card and put it into the Raspberry PI
+
+* take a USB power supply with at least 1.5A output power and connect Wirela_Air.
+
+* wait about 3 minutes and search your network with e.g. "Advanced IP Scanner" for the hostname "raspberry".
+
+* remember the IP address and create a SSH connection with the software "Mobaxterm" user is pi and the password is raspberry
+
+* install git on the raspberry pi with the command.
+
+````
+sudo apt install git
+````
+
+
+* then the process will take about 15 minutes and must be confirmed with Y again and again: 
+
+````
+sudo git clone https://github.com/itsnils/Wirela_Air.git
+cd Wirela_Air
+sudo chmod +x wirela_installer.sh
+/wirela_installer.sh
+````
+
+* after that we have to enable SPI and I2c for the raspberry Pi to communicate with the sensors/display and the LEDs.
+````
+sudo nano raspi-config
+````
+Then with the arrow keys to point 3.
+and enable SPI and i2c
+
+then exit raspi-config and reboot the system
+````
+sudo reboot
+````
+* now you have to login again with SSH to the Raspberry Pi.
+````
+cd Wirela_Air
+sudo pigpiod
+sudo python3 main.py
+````
+* now you should see something on the screen.
+
+
+* let the program run >2min and check if the screen changes every 5 seconds and new readings are displayed.
+
+* ok great now we have to set that when the Raspberry Pi restarts the program will be executed automatically.
+
+* to do this enter complete command.
+````
+sudo nano /etc/rc.local
+````
+
+* Now add the following statement to the content of the file. This must be inserted before the existing "exit 0" at the end of the file and must contain the path to the existing script.
+````
+sudo pigpiod
+sudo python3 /home/pi/Wirela_Air/main.py &
+````
+* The statement is completed with a "&" character, this is important insofar, because should your program not only run once, but run in a loop in the background, the Raspberry Pi would possibly get stuck in an infinite loop without "&" and not boot completely.
+
+* now you can save the file with Control + X. and confirm with y.
+
+* then execute the command :
+````
+sudo reboot
+````
+you have it business!!
+now after you have plugged in the power (>2 minutes)
+the first measured values should be shown on the display.
+unfortunately it is not possible to turn on the display from begin and show that the system is booting up.
