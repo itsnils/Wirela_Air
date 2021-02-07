@@ -436,7 +436,7 @@ class wirela_air():
                             draw.text((0, 0), "Settings >  Version", fill="white", font=self.font_2)
                             draw.text((0, 15), str(self.software_version), fill="white", font=self.font_2)
                             draw.text((0, 25), str("Do you want to update your software?"), fill="white", font=self.font_2)
-                            draw.text((0, 25), str("Press the + button for more than 3 seconds."), fill="white", font=self.font_2)
+                            draw.text((0, 35), str("Press the + button for more than 3 seconds."), fill="white", font=self.font_2)
                         if self.button_1_for_3_sec == True:
                             self.button_1_for_3_sec = False
                             with canvas(self.oled) as draw:
