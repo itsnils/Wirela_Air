@@ -26,7 +26,7 @@ class wirela_air():
         Also a buzzer is built so that is alarmed at a horchen CO2 value.
         """
         # current software version
-        self.software_version = "v2.0.19|07.02.21"
+        self.software_version = "v2.0.20|07.02.21"
 
         # Watchdog
         self.software_watchdog = None
