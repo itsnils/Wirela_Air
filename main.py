@@ -13,6 +13,7 @@ from PIL import ImageFont
 from subprocess import *
 import dia_wirela
 import os
+import re
 
 
 class wirela_air():
@@ -26,7 +27,7 @@ class wirela_air():
         """
         # Watchdog
         self.software_watchdog = True
-        self.hardware_watchdog = True # todo not yet implemented - under development
+        self.hardware_watchdog = True
         self.watchdog_scd30 = None
         self.watchdog_sht30 = None
         self.watchdog_spg40 = None
@@ -68,6 +69,7 @@ class wirela_air():
         # Dotstar LED todo Adjust brightness. possibly with timer (darker at night)
         # LED 1 top
         self.leds_alarm_ative = True
+        self.leds_brightness = 100 # %
         self.led_1_color = None
         self.led_1_alarm_0 = 550  # alarm 0 = Blue    < 500 ppm co2
         self.led_1_alarm_1 = 800  # alarm 1 = Green   > 800 ppm co2
@@ -85,8 +87,8 @@ class wirela_air():
         self.dysplay_notification_ativ = True
         self.serial = i2c(port=1, address=0x3C)
         self.oled = ssd1306(self.serial)
-        self.font_1 = ImageFont.truetype("./font.otf", 48, encoding="unic")
-        self.font_2 = ImageFont.truetype("./font.otf", 12, encoding="unic")
+        self.font_1 = ImageFont.truetype("/home/pi/Wirela_Air/font.otf", 48, encoding="unic")
+        self.font_2 = ImageFont.truetype("/home/pi/Wirela_Air/font.otf", 12, encoding="unic")
 
         # Button
         self.button_1 = 0
@@ -101,11 +103,45 @@ class wirela_air():
         if self.diagnosis_ative == True:
             self.diagnosis = dia_wirela.Wirela_Diagnosis()
 
-    def read_ini_data(self):
-        data = open('./wirela_init.txt', 'r')
-        value = data.read().split(",")
-        self.diagnosis_ative = str((value[0]))
-        self.summer_alarm_from = int(value[1])
+    def read_settings_data(self):
+        try:
+            data = open('/home/pi/Wirela_Air_Settings/wirela_air_settings.txt', 'r')
+            for i in data:
+                x = re.split('=|\n', i)
+                if x[0] == "hardware_watchdog":
+                    if x[1] == "True":
+                        self.hardware_watchdog = True
+                    if x[1] == "Fasle":
+                        self.hardware_watchdog = False
+
+                if x[0] == "summer_ative":
+                    if x[1] == "True":
+                        self.summer_ative = True
+                    if x[1] == "Fasle":
+                        self.summer_ative = False
+                if x[0] == "summer_alarm_from":
+                    self.summer_alarm_from = int(x[1])
+                if x[0] == "leds_alarm_ative":
+                    if x[1] == "True":
+                        self.leds_alarm_ative = True
+                    if x[1] == "Fasle":
+                        self.leds_alarm_ative = False
+                if x[0] == "dysplay_notification_ativ":
+                    if x[1] == "True":
+                        self.dysplay_notification_ativ = True
+                    if x[1] == "Fasle":
+                        self.dysplay_notification_ativ = False
+                if x[0] == "diagnosis_ative":
+                    if x[1] == "True":
+                        self.diagnosis_ative = True
+                    if x[1] == "Fasle":
+                        self.diagnosis_ative= False
+                if x[0] == "leds_brightness":
+                    self.leds_brightness = int(x[1])
+
+        except:
+            print("no data from wirela_air_settings.txt")
+            pass
 
 
     def ping(self):
@@ -198,6 +234,12 @@ class wirela_air():
             except:
                 self.watchdog_piezo_buzzers = "inactive"
 
+    def led_brightness(self, color):
+        if not color == 0 or self.leds_brightness == 0:
+            brightness = int(color/self.leds_brightness)
+        return brightness
+
+
 
     def light_notification(self):
         """
@@ -207,35 +249,35 @@ class wirela_air():
             if self.leds_alarm_ative == True:
                 if not self.co2_median == None:
                     if self.co2_median < self.led_1_alarm_0:
-                        self.dots[0] = (0, 0, 255)
+                        self.dots[0] = (0, 0, self.led_brightness(255))
                         self.led_1_color = "blue"
 
                     if self.co2_median > self.led_1_alarm_0 and self.co2_median < self.led_1_alarm_1:
-                        self.dots[0] = (0, 255, 0)
+                        self.dots[0] = (0, self.led_brightness(255), 0)
                         self.led_1_color = "green"
 
                     if self.co2_median > self.led_1_alarm_1 and self.co2_median < self.led_1_alarm_3:
-                        self.dots[0] = (255, 128, 0)
+                        self.dots[0] = (self.led_brightness(255), self.led_brightness(128), 0)
                         self.led_1_color = "orange"
 
                     if self.co2_median > self.led_1_alarm_3:
-                        self.dots[0] = (255, 0, 0)
+                        self.dots[0] = (self.led_brightness(255), 0, 0)
                         self.led_1_color = "reed"
                 else:
                     self.dots[0] = (0, 0, 0)
 
                 if not self.tvoc_median == None:
                     if self.tvoc_median < self.led_2_alarm_0:
-                        self.dots[1] = (0, 0, 255)
+                        self.dots[1] = (0, 0, self.led_brightness(255))
                         self.led_1_color = "blue"
                     if self.tvoc_median > self.led_2_alarm_1:
-                        self.dots[1] = (0, 255, 0)
+                        self.dots[1] = (0, self.led_brightness(255), 0)
                         self.led_1_color = "green"
                     if self.tvoc_median > self.led_2_alarm_2:
-                        self.dots[1] = (255, 128, 0)
+                        self.dots[1] = (self.led_brightness(255), self.led_brightness(128), 0)
                         self.led_1_color = "orange"
                     if self.tvoc_median > self.led_2_alarm_3:
-                        self.dots[1] = (255, 0, 0)
+                        self.dots[1] = (self.led_brightness(255), 0, 0)
                         self.led_1_color = "reed"
                 else:
                     self.dots[1] = (0, 0, 0)
@@ -469,6 +511,8 @@ class wirela_air():
         """
         Everything necessary is started here
         """
+        self.ping()
+        self.read_settings_data()
         self.diagnosis.remember_time_now()
         if self.diagnosis_ative == True:
             self.diagnosis.writes_to_database("Start")

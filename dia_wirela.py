@@ -22,7 +22,7 @@ class Wirela_Diagnosis():
             """
             here the login data for the SQL server are read from the file "database_login.txt".
             """
-            data = open('database_login.txt', 'r')
+            data = open('/home/pi/Wirela_Air_Settings/database_login.txt', 'r')
             value = data.read().split(",")
             self.host = str((value[0]))
             self.port = int(value[2])
@@ -33,6 +33,7 @@ class Wirela_Diagnosis():
             self.sql_cursor = self.my_db.cursor()
             self.eth_mac = get_mac_address()
         except:
+            print("No file or internet")
             pass
         self.timestamp_start = None
         self.timestamp_now = None

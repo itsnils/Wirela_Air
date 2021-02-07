@@ -1,4 +1,4 @@
-# Wirela_Air
+# Wirela Air
 Air quality device for CO2, VOC and temperature / humidity. Display and LED indicator for the measured values.
 
 It is about measuring the indoor air. if there are many people in a room, the carbon dioxide content in the air increases. in 2020, the average carbon dioxide (Co2) content was 416.21 ppm. as new buildings are being built better and better and are becoming more and more heat-insulated and air-tight, our human output of Co2 in the air we breathe of up to 40,000 ppm always remains the same. this means that more active ventilation is required. who hasn't experienced this? Your friend wants to ventilate, but you don't? with a Co2 measuring device, clear limits can be defined when ventilation is necessary. if the Co2 value rises above 1000 ppm, ventilation should take place at the latest at 1200 ppm. The room air sensor Wirela Air has a built-in LED to indicate whether ventilation is necessary. if the LED is green, the air is good, <800 ppm, the LED is orange (>800ppm <1200ppm) should be ventilated. if the LED is red (>1200 ppm) must be ventilated. If the CO2 content in the air rises to more than 5000 ppm, a warning tone sounds and urgent ventilation is required. Co2 values >5000ppm can lead to fainting. 
@@ -55,17 +55,17 @@ network={
 * install git on the raspberry pi with the command.
 
 ````
-sudo apt install git
+sudo yes | apt install git
 ````
 
 
 * then the process will take about 15 minutes and must be confirmed with Y again and again: 
 
 ````
+cd /home/pi/
 sudo git clone https://github.com/itsnils/Wirela_Air.git
-cd Wirela_Air
-sudo chmod +x wirela_installer.sh
-./wirela_installer.sh
+sudo chmod +x /home/pi/Wirela_Air/wirela_installer.sh
+./home/pi/Wirela_Air/wirela_installer.sh
 ````
 
 * after that we have to enable SPI and I2c for the raspberry Pi to communicate with the sensors/display and the LEDs.
@@ -73,22 +73,44 @@ sudo chmod +x wirela_installer.sh
 sudo raspi-config
 ````
 Then with the arrow keys to point 3.
-and enable SPI and i2c
+and enable P3 SPI and P4 i2c
 
-then exit raspi-config and reboot the system
+* then exit raspi-config and reboot the system
 ````
 sudo reboot
 ````
 * now you have to login again with SSH to the Raspberry Pi.
 ````
-cd Wirela_Air
 sudo pigpiod
-sudo python3 main.py
 ````
+* To test the software, we must first disable the watchdog. To do this, you must run the following command.
+
+````
+sudo nano /home/pi/Wirela_Air_Settings/wirela_air_settings.txt
+````
+
+* now you have to search for "hardware_watchdog".
+there should be the default: "True"
+change this to "False" and save the file.
+
+* now you can test the software by running the following command.
+````
+sudo python3 /home/pi/Wirela_Air/main.py
+````
+
+
 * now you should see something on the screen.
 
 
 * let the program run >2min and check if the screen changes every 5 seconds and new readings are displayed.
+
+* now we need to turn on the hardware watchdog again.
+````
+sudo nano /home/pi/Wirela_Air_Settings/wirela_air_settings.txt
+````
+
+now you have to search for "hardware_watchdog".
+change this to "True" and save the file.
 
 * ok great now we have to set that when the Raspberry Pi restarts the program will be executed automatically.
 
@@ -114,3 +136,46 @@ you have it business!!
 now after you have plugged in the power (>2 minutes)
 the first measured values should be shown on the display.
 unfortunately it is not possible to turn on the display from begin and show that the system is booting up.
+
+
+# Software update
+
+* to update the software execute the following commands.
+````
+cd /home/pi/
+sudo rm -r /home/pi/Wirela_Air
+sudo git clone https://github.com/itsnils/Wirela_Air.git
+````
+
+Now everything is updated.
+* To test the software, we must first disable the watchdog. To do this, you must run the following command.
+
+````
+sudo nano /home/pi/Wirela_Air_Settings/wirela_air_settings.txt
+````
+
+* now you have to search for "hardware_watchdog".
+there should be the default: "True"
+change this to "False" and save the file.
+
+* now you can test the software by running the following command.
+````
+sudo python3 /home/pi/Wirela_Air/main.py
+````
+
+* After about 5 seconds, the display should show something.
+
+* Test the software for about 2 minutes. does the screen change? and are new readings displayed?
+* now we need to turn on the hardware watchdog again.
+````
+sudo nano /home/pi/Wirela_Air_Settings/wirela_air_settings.txt
+````
+
+* now you have to search for "hardware_watchdog".
+* change this to "True" and save the file.
+
+* now you can restart the Raspberry Pi
+````
+sudo reboot
+````
+
