@@ -452,7 +452,7 @@ class wirela_air():
                                 self.connect_to_internet = None
                                 self.ping()
                                 time.sleep(5)
-                            if self.connect_to_internet == True:
+                            if self.connect_to_internet == True: #todo Something not right.
                                 with canvas(self.oled) as draw:
                                     draw.text((0, 0), "Settings >  Version", fill="white", font=self.font_2)
                                     draw.text((0, 15), str("Software is being updated."), fill="white",font=self.font_2)
