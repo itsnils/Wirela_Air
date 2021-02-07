@@ -92,6 +92,7 @@ class wirela_air():
         self.oled = ssd1306(self.serial)
         self.font_1 = ImageFont.truetype("/home/pi/Wirela_Air/font.otf", 48, encoding="unic")
         self.font_2 = ImageFont.truetype("/home/pi/Wirela_Air/font.otf", 12, encoding="unic")
+        self.max_settings_pages = 1 # value + 1 = settings pages
 
         # Button
         self.button = 0
@@ -316,7 +317,10 @@ class wirela_air():
                             time.sleep(0.5)
                     else:
                         print("Button S1 (+) press <0.1s")
-                        self.button = self.button + 1
+                        if not self.max_settings_pages >= self.button:
+                            self.button = self.button + 1
+                        else:
+                            self.button = self.max_settings_pages
                         break
             time.sleep(0.05)
             self.watchdog_button = "active"
@@ -343,7 +347,10 @@ class wirela_air():
                             time.sleep(0.5)
                     else:
                         print("Button S2 (-) press <0.1s")
-                        self.button = self.button - 1
+                        if not 0 <= self.button:
+                            self.button = self.button - 1
+                        else:
+                            self.button = 0
                         break
             time.sleep(0.05)
             self.watchdog_button = "active"
@@ -435,28 +442,28 @@ class wirela_air():
                         with canvas(self.oled) as draw:
                             draw.text((0, 0), "Settings >  Version", fill="white", font=self.font_2)
                             draw.text((0, 15), str(self.software_version), fill="white", font=self.font_2)
-                            draw.text((0, 25), str("Do you want to update your software?"), fill="white", font=self.font_2)
-                            draw.text((0, 35), str("Press the + button for more than 3 seconds."), fill="white", font=self.font_2)
+                            draw.text((0, 28), str("Update your software?"), fill="white", font=self.font_2)
+                            draw.text((0, 40), str("+ Button for >3 seconds."), fill="white", font=self.font_2)
                         if self.button_1_for_3_sec == True:
                             self.button_1_for_3_sec = False
                             with canvas(self.oled) as draw:
                                 draw.text((0, 0), "Settings >  Version", fill="white", font=self.font_2)
-                                draw.text((0, 15), str("Waiting for internet. please wait..."), fill="white", font=self.font_2)
+                                draw.text((0, 15), str("Internet? please wait..."), fill="white", font=self.font_2)
                                 self.connect_to_internet = None
                                 self.ping()
                                 time.sleep(5)
-                                if self.connect_to_internet == True:
-                                    with canvas(self.oled) as draw:
-                                        draw.text((0, 0), "Settings >  Version", fill="white", font=self.font_2)
-                                        draw.text((0, 15), str("Software is being updated."), fill="white",font=self.font_2)
-                                        draw.text((0, 25), str("Please wait 2-4 minutes. the unit will restart.."), fill="white",font=self.font_2)
-                                        self.update()
-                                        time.sleep(2)
-                                else:
-                                    with canvas(self.oled) as draw:
-                                        draw.text((0, 0), "Settings >  Version", fill="white", font=self.font_2)
-                                        draw.text((0, 15), str("No internet available"), fill="white", font=self.font_2)
-                                        time.sleep(2)
+                            if self.connect_to_internet == True:
+                                with canvas(self.oled) as draw:
+                                    draw.text((0, 0), "Settings >  Version", fill="white", font=self.font_2)
+                                    draw.text((0, 15), str("Software is being updated."), fill="white",font=self.font_2)
+                                    draw.text((0, 28), str("Please wait 2-4 minutes."), fill="white",font=self.font_2)
+                                    self.update()
+                                    time.sleep(2)
+                            else:
+                                with canvas(self.oled) as draw:
+                                    draw.text((0, 0), "Settings >  Version", fill="white", font=self.font_2)
+                                    draw.text((0, 15), str("No internet available"), fill="white", font=self.font_2)
+                                    time.sleep(2)
 
 
 
