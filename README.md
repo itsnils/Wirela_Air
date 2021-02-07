@@ -65,7 +65,7 @@ yes | sudo apt install git
 cd /home/pi/
 sudo git clone https://github.com/itsnils/Wirela_Air.git
 sudo chmod +x /home/pi/Wirela_Air/wirela_installer.sh
-./home/pi/Wirela_Air/wirela_installer.sh
+/home/pi/Wirela_Air/wirela_installer.sh
 ````
 
 * after that we have to enable SPI and I2c for the raspberry Pi to communicate with the sensors/display and the LEDs.
