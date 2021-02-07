@@ -85,8 +85,8 @@ class wirela_air():
         self.dysplay_notification_ativ = True
         self.serial = i2c(port=1, address=0x3C)
         self.oled = ssd1306(self.serial)
-        self.font_1 = ImageFont.truetype("/home/pi/font.otf", 48, encoding="unic")
-        self.font_2 = ImageFont.truetype("/home/pi/font.otf", 12, encoding="unic")
+        self.font_1 = ImageFont.truetype("./font.otf", 48, encoding="unic")
+        self.font_2 = ImageFont.truetype("./font.otf", 12, encoding="unic")
 
         # Button
         self.button_1 = 0
@@ -102,7 +102,7 @@ class wirela_air():
             self.diagnosis = dia_wirela.Wirela_Diagnosis()
 
     def read_ini_data(self):
-        data = open('wirela_init.txt', 'r')
+        data = open('./wirela_init.txt', 'r')
         value = data.read().split(",")
         self.diagnosis_ative = str((value[0]))
         self.summer_alarm_from = int(value[1])
@@ -469,6 +469,7 @@ class wirela_air():
         """
         Everything necessary is started here
         """
+        self.diagnosis.remember_time_now()
         if self.diagnosis_ative == True:
             self.diagnosis.writes_to_database("Start")
         self.read_ip_adr()

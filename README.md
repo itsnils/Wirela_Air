@@ -17,8 +17,8 @@ Wirela Air is based on a Raspberry Pi Zero and the following components are sold
 * OLED Display 128x64 0.96'' (SSD1306)
 * 2 x Dotsar LED
 * Buzzer (GPIO 21)
-* Button 1 (+) (GPIO x)
-* Button 2 (-) (GPIO x)
+* Button 1 (+) (GPIO 19)
+* Button 2 (-) (GPIO 26)
 * USB - C input.
 
 
@@ -27,15 +27,17 @@ Wirela Air is based on a Raspberry Pi Zero and the following components are sold
 * write the micro SD card with the newest Raspberry Pi OS Lite
 * Take the micro SD card out of the card reader and put it again into the PC.
 * a drive appears. there you create a file one extension with the name SSH.
-* to continue the installation you have to connect the raspberry pi to the network/internet. to do this you create a file called wpa_supplicant.conf on the pc. in this file you write the following commands:
+* to continue the installation you have to connect the raspberry pi to the network/internet. 
+  to do this you create a file called wpa_supplicant.conf on the pc. you only have to enter your SSID (W-LAN Name) and the psk (Password) instead of the xxxxx. note that the " at the end and at the end remain
+  in this file you write the following commands:
 ````
 country=CH
 ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
 update_config=1
 
 network={
-       ssid="xxxxxxx"
-       psk="xxxxxx"
+       ssid="xxxxx"
+       psk="xxxxx"
        key_mgmt=WPA-PSK
 }
 ````
@@ -63,12 +65,12 @@ sudo apt install git
 sudo git clone https://github.com/itsnils/Wirela_Air.git
 cd Wirela_Air
 sudo chmod +x wirela_installer.sh
-/wirela_installer.sh
+./wirela_installer.sh
 ````
 
 * after that we have to enable SPI and I2c for the raspberry Pi to communicate with the sensors/display and the LEDs.
 ````
-sudo nano raspi-config
+sudo raspi-config
 ````
 Then with the arrow keys to point 3.
 and enable SPI and i2c

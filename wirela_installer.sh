@@ -1,5 +1,3 @@
-sudo systemctl enable spi
-sudo systemctl enable i2c
 sudo apt install python3-pip
 sudo apt-get install python-pigpio python3-pigpio
 sudo apt-get install libopenjp2-7
