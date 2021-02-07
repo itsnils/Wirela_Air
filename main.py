@@ -426,7 +426,7 @@ class wirela_air():
                 """
                 if self.dysplay_notification_ativ == False:
                     time.sleep(0.5)
-                    self.button = 0
+                    print('{}{}'.format("Button pos.", self.button))
                     if self.button == 0:
                         with canvas(self.oled) as draw:
                             draw.text((0, 0), "Settings >  Nettwork", fill="white", font=self.font_2)
