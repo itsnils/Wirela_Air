@@ -25,6 +25,9 @@ class wirela_air():
         OLED display. to the help come two LED displays and two buttons.
         Also a buzzer is built so that is alarmed at a horchen CO2 value.
         """
+        # current software version
+        self.software_version = "v2.0.19|07.02.21"
+
         # Watchdog
         self.software_watchdog = None
         self.hardware_watchdog = None
@@ -91,8 +94,9 @@ class wirela_air():
         self.font_2 = ImageFont.truetype("/home/pi/Wirela_Air/font.otf", 12, encoding="unic")
 
         # Button
-        self.button_1 = 0
-        self.button_2 = 0
+        self.button = 0
+        self.button_1_for_3_sec = None
+        self.button_2_for_3_sec = None
 
         #Network
         self.wlan0_ip = None
@@ -302,10 +306,11 @@ class wirela_air():
                         if i == 15:
                             print("Button S1 (+) press >3s")
                             self.dysplay_notification_ativ = False
+                            self.button_1_for_3_sec = True
                             time.sleep(0.5)
                     else:
                         print("Button S1 (+) press <0.1s")
-                        self.button_1 = self.button_1 + 1
+                        self.button = self.button + 1
                         break
             time.sleep(0.05)
             self.watchdog_button = "active"
@@ -328,10 +333,11 @@ class wirela_air():
                         if i == 15:
                             print("Button S2 (-) press >3s")
                             self.dysplay_notification_ativ = True
+                            self.button_2_for_3_sec = True
                             time.sleep(0.5)
                     else:
                         print("Button S2 (-) press <0.1s")
-                        self.button_2 = self.button_2 + 1
+                        self.button = self.button - 1
                         break
             time.sleep(0.05)
             self.watchdog_button = "active"
@@ -339,27 +345,6 @@ class wirela_air():
             self.watchdog_button = "inactive"
             time.sleep(0.05)
 
-    def button_S1_S2(self, gpio_button_S1=26, gpio_button_S2=19): # Button + and -
-        """
-        Here you define how button S1 and button 2 should behave. todo is still under development and not implemented.
-        :param gpio_button_S1:
-        :param gpio_button_S2:
-        """
-        try:
-            if (self.pi_gpio.read(gpio_button_S1)) == 0 and (self.pi_gpio.read(gpio_button_S2)) == 0:
-                for i in range(0, 16):
-                    time.sleep(0.1)
-                    if (self.pi_gpio.read(gpio_button_S1)) == 0 and (self.pi_gpio.read(gpio_button_S2)) == 0:
-                        if i == 15:
-                            print("Button S1 + S2 press >3s")
-                            time.sleep(0.5)
-                    else:
-                        break
-            time.sleep(0.05)
-            self.watchdog_button = "active"
-        except:
-            self.watchdog_button = "inactive"
-            time.sleep(0.05)
 
     def button_loop(self):
         """
@@ -431,11 +416,45 @@ class wirela_air():
                             break
                 else:
                     time.sleep(0.1)
-
+                """
+                Settings
+                """
                 if self.dysplay_notification_ativ == False:
-                    with canvas(self.oled) as draw:
-                        draw.text((0, 0), "Settings >  Nettwork", fill="white", font=self.font_2)
-                        draw.text((0, 15), str(self.wlan0_ip), fill="white", font=self.font_2)
+                    time.sleep(0.5)
+                    self.button = 0
+                    if self.button == 0:
+                        with canvas(self.oled) as draw:
+                            draw.text((0, 0), "Settings >  Nettwork", fill="white", font=self.font_2)
+                            draw.text((0, 15), str(self.wlan0_ip), fill="white", font=self.font_2)
+                    if self.button == 1:
+                        with canvas(self.oled) as draw:
+                            draw.text((0, 0), "Settings >  Version", fill="white", font=self.font_2)
+                            draw.text((0, 15), str(self.software_version), fill="white", font=self.font_2)
+                            draw.text((0, 25), str("Do you want to update your software?"), fill="white", font=self.font_2)
+                            draw.text((0, 25), str("Press the + button for more than 3 seconds."), fill="white", font=self.font_2)
+                        if self.button_1_for_3_sec == True:
+                            self.button_1_for_3_sec = False
+                            with canvas(self.oled) as draw:
+                                draw.text((0, 0), "Settings >  Version", fill="white", font=self.font_2)
+                                draw.text((0, 15), str("Waiting for internet. please wait..."), fill="white", font=self.font_2)
+                                self.ping()
+                                time.sleep(1)
+                                if self.connect_to_internet == True:
+                                    with canvas(self.oled) as draw:
+                                        draw.text((0, 0), "Settings >  Version", fill="white", font=self.font_2)
+                                        draw.text((0, 15), str("Software is being updated."), fill="white",font=self.font_2)
+                                        draw.text((0, 15), str("Please wait 2-4 minutes. the unit will restart.."), fill="white",font=self.font_2)
+                                        # todo develop a metod to enable automatic updating.
+                                        time.sleep(2)
+                                else:
+                                    with canvas(self.oled) as draw:
+                                        draw.text((0, 0), "Settings >  Version", fill="white", font=self.font_2)
+                                        draw.text((0, 15), str("No internet available"), fill="white", font=self.font_2)
+                                        time.sleep(2)
+
+
+
+
                 self.watchdog_oled_display = "active"
             except:
                 self.watchdog_oled_display = "inactive"
