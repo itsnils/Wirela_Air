@@ -27,7 +27,7 @@ class wirela_air():
         """
         # Watchdog
         self.software_watchdog = True
-        self.hardware_watchdog = True
+        self.hardware_watchdog = False
         self.watchdog_scd30 = None
         self.watchdog_sht30 = None
         self.watchdog_spg40 = None
@@ -104,45 +104,44 @@ class wirela_air():
             self.diagnosis = dia_wirela.Wirela_Diagnosis()
 
     def read_settings_data(self):
-        try:
-            data = open('/home/pi/Wirela_Air_Settings/wirela_air_settings.txt', 'r')
-            for i in data:
-                x = re.split('=|\n', i)
-                if x[0] == "hardware_watchdog":
-                    if x[1] == "True":
-                        self.hardware_watchdog = True
-                    if x[1] == "Fasle":
-                        self.hardware_watchdog = False
 
-                if x[0] == "summer_ative":
-                    if x[1] == "True":
-                        self.summer_ative = True
-                    if x[1] == "Fasle":
-                        self.summer_ative = False
-                if x[0] == "summer_alarm_from":
-                    self.summer_alarm_from = int(x[1])
-                if x[0] == "leds_alarm_ative":
-                    if x[1] == "True":
-                        self.leds_alarm_ative = True
-                    if x[1] == "Fasle":
-                        self.leds_alarm_ative = False
-                if x[0] == "dysplay_notification_ativ":
-                    if x[1] == "True":
-                        self.dysplay_notification_ativ = True
-                    if x[1] == "Fasle":
-                        self.dysplay_notification_ativ = False
-                if x[0] == "diagnosis_ative":
-                    if x[1] == "True":
-                        self.diagnosis_ative = True
-                    if x[1] == "Fasle":
-                        self.diagnosis_ative= False
-                if x[0] == "leds_brightness":
-                    self.leds_brightness = int(x[1])
-
+        data = open('/home/pi/Wirela_Air_Settings/wirela_air_settings.txt', 'r')
+        for i in data:
+            x = re.split('=|"|\n', i)
+            if x[0] == "hardware_watchdog":
+                if x[2] == "True":
+                    self.hardware_watchdog = True
+                if x[2] == "Fasle":
+                    self.hardware_watchdog = False
+            if x[0] == "summer_ative":
+                if x[2] == "True":
+                    self.summer_ative = True
+                if x[2] == "Fasle":
+                    self.summer_ative = False
+            if x[0] == "summer_alarm_from":
+                self.summer_alarm_from = int(x[2])
+            if x[0] == "leds_alarm_ative":
+                if x[2] == "True":
+                    self.leds_alarm_ative = True
+                if x[2] == "Fasle":
+                    self.leds_alarm_ative = False
+            if x[0] == "dysplay_notification_ativ":
+                if x[2] == "True":
+                    self.dysplay_notification_ativ = True
+                if x[2] == "Fasle":
+                    self.dysplay_notification_ativ = False
+            if x[0] == "diagnosis_ative":
+                if x[2] == "True":
+                    self.diagnosis_ative = True
+                if x[2] == "Fasle":
+                    self.diagnosis_ative= False
+            if x[0] == "leds_brightness":
+                self.leds_brightness = int(x[2])
+"""
         except:
             print("no data from wirela_air_settings.txt")
             pass
-
+"""
 
     def ping(self):
         hostname = "raspberrypi.org"

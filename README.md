@@ -73,7 +73,7 @@ sudo chmod +x /home/pi/Wirela_Air/wirela_installer.sh
 sudo raspi-config
 ````
 Then with the arrow keys to point 3.
-and enable P3 SPI and P4 i2c
+and enable P4 SPI and P5 i2c
 
 * then exit raspi-config and reboot the system
 ````
