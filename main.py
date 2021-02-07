@@ -159,6 +159,12 @@ class wirela_air():
         else:
             self.connect_to_internet = False
             self.diagnosis_ative = False
+    def update(self):
+        print(os.system("cd /home/pi/"))
+        print(os.system("sudo rm -r /home/pi/Wirela_Air"))
+        print(os.system("sudo git clone https://github.com/itsnils/Wirela_Air.git"))
+        print("reboot now")
+        os.system("sudo reboot")
 
     def sensor_sht30(self):
         """
@@ -351,7 +357,6 @@ class wirela_air():
         Here the buttons are queried in a loop
         """
         while True:
-            self.button_S1_S2()
             self.button_S1()
             self.button_S2()
             time.sleep(0.05)
@@ -437,14 +442,15 @@ class wirela_air():
                             with canvas(self.oled) as draw:
                                 draw.text((0, 0), "Settings >  Version", fill="white", font=self.font_2)
                                 draw.text((0, 15), str("Waiting for internet. please wait..."), fill="white", font=self.font_2)
+                                self.connect_to_internet = None
                                 self.ping()
-                                time.sleep(1)
+                                time.sleep(5)
                                 if self.connect_to_internet == True:
                                     with canvas(self.oled) as draw:
                                         draw.text((0, 0), "Settings >  Version", fill="white", font=self.font_2)
                                         draw.text((0, 15), str("Software is being updated."), fill="white",font=self.font_2)
-                                        draw.text((0, 15), str("Please wait 2-4 minutes. the unit will restart.."), fill="white",font=self.font_2)
-                                        # todo develop a metod to enable automatic updating.
+                                        draw.text((0, 25), str("Please wait 2-4 minutes. the unit will restart.."), fill="white",font=self.font_2)
+                                        self.update()
                                         time.sleep(2)
                                 else:
                                     with canvas(self.oled) as draw:
