@@ -33,8 +33,9 @@ class Wirela_Diagnosis():
             self.sql_cursor = self.my_db.cursor()
             self.eth_mac = get_mac_address()
         except:
-            print("No file or internet")
-            pass
+            print("No access from the mySQL server. The access data to the server are not stored in the settings or there is no internet connection. ")
+            print("If you do not have access data in the folder /home/pi/Wirela_Air_Settings/database_login.txt, please contact my administrator.")
+
         self.timestamp_start = None
         self.timestamp_now = None
 
