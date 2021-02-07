@@ -55,7 +55,7 @@ network={
 * install git on the raspberry pi with the command.
 
 ````
-sudo yes | apt install git
+yes | sudo apt install git
 ````
 
 
