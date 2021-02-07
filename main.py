@@ -26,8 +26,8 @@ class wirela_air():
         Also a buzzer is built so that is alarmed at a horchen CO2 value.
         """
         # Watchdog
-        self.software_watchdog = True
-        self.hardware_watchdog = False
+        self.software_watchdog = None
+        self.hardware_watchdog = None
         self.watchdog_scd30 = None
         self.watchdog_sht30 = None
         self.watchdog_spg40 = None
@@ -111,11 +111,14 @@ class wirela_air():
             data = open('/home/pi/Wirela_Air_Settings/wirela_air_settings.txt', 'r')
             for i in data:
                 x = re.split('=|"|\n', i)
+                # todo not finish
                 if x[0] == "hardware_watchdog":
                     if x[2] == "True":
                         self.hardware_watchdog = True
+                        print("WG on")
                     if x[2] == "Fasle":
                         self.hardware_watchdog = False
+                        print("WG off")
                 if x[0] == "summer_ative":
                     if x[2] == "True":
                         self.summer_ative = True
