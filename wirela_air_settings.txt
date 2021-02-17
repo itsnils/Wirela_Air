@@ -1,9 +1,25 @@
 # Settings
 hardware_watchdog="True"
-summer_ative="True"
+diagnosis_active="True"
+automatic_software_update="True" # Every Monday at 05:00 a check is made to see if a new software version is available.
+summer_active="True"
 summer_alarm_from="5000"
-leds_alarm_ative="True"
+leds_alarm_active="True"
 leds_brightness="100"
-dysplay_notification_ativ="True"
-diagnosis_ative="True"
-
+co2_LED_value_optimal="550" # < ppm LED Blue
+co2_LED_value_good="800"
+co2_LED_value_attention="1000"
+co2_LED_value_alarm="1200"
+voc_LED_value_optimal="550" # < ppm LED Blue
+voc_LED_value_good="800"
+voc_LED_value_attention="1000"
+voc_LED_value_alarm="1200"
+display_notification_active="True"
+display_unit_behind_measured_value="False"
+display_night_mode="True"
+display_off_time="23:00"
+display_on_time="06:00"
+leds_night_mode="True"
+leds_night_mode_off_time="23:00"
+leds_night_mode_on_time="06:00
+leds_night_mode_brightness="10" # 0-100%

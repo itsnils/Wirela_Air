@@ -62,7 +62,7 @@ class wirela_air():
         self.sht30_bus = smbus.SMBus(1)
 
         # Summer
-        self.summer_ative = True
+        self.summer_active = True
         self.alarm_triggered = None
         self.summer_reset = False
         self.summer_alarm_from = 5000
@@ -71,27 +71,35 @@ class wirela_air():
 
         # Dotstar LED todo Adjust brightness. possibly with timer (darker at night)
         # LED 1 top
-        self.leds_alarm_ative = True
+        self.leds_alarm_active = True
+        self.leds_night_mode = None
+        self.leds_night_mode_off_time = None
+        self.leds_night_mode_on_time = None
+        self.leds_night_mode_brightness = None
         self.leds_brightness = 100 # %
         self.led_1_color = None
-        self.led_1_alarm_0 = 550  # alarm 0 = Blue    < 500 ppm co2
-        self.led_1_alarm_1 = 800  # alarm 1 = Green   > 800 ppm co2
-        self.led_1_alarm_2 = 1000  # alarm 2 = Orange > 1000 ppm co2
-        self.led_1_alarm_3 = 1200  # alarm 3 = Red    > 1200 ppm co2
+        self.led_1_alarm_0 = 550    # optimal   - alarm 0 = Blue
+        self.led_1_alarm_1 = 800    # good      - alarm 1 = Green
+        self.led_1_alarm_2 = 1000   # attention - alarm 2 = Orange
+        self.led_1_alarm_3 = 1200   # alarm     - alarm 3 = Red
         # LED 2 bottom
         self.led_2_color = None
-        self.led_2_alarm_0 = 10  # alarm 0 = Blue    < 10 ppm tvoc
-        self.led_2_alarm_1 = 40  # alarm 1 = Green   > 40 ppm tvoc
-        self.led_2_alarm_2 = 100  # alarm 2 = Orange > 100 ppm tvoc
-        self.led_2_alarm_3 = 150  # alarm 3 = Red    > 150 ppm tvoc
+        self.led_2_alarm_0 = 20     # alarm 0 = Blue
+        self.led_2_alarm_1 = 50     # alarm 1 = Green
+        self.led_2_alarm_2 = 100    # alarm 2 = Orange
+        self.led_2_alarm_3 = 150    # alarm 3 = Red
         self.dots = dotstar.DotStar(board.SCK, board.MOSI, 2, brightness=0.2)
 
         # OLED Dysplay
-        self.dysplay_notification_ativ = True
+        self.display_notification_active = True
+        self.display_night_mode = None
+        self.display_off_time = None
+        self.display_on_time = None
         self.serial = i2c(port=1, address=0x3C)
         self.oled = ssd1306(self.serial)
         self.font_1 = ImageFont.truetype("/home/pi/Wirela_Air/font.otf", 48, encoding="unic")
         self.font_2 = ImageFont.truetype("/home/pi/Wirela_Air/font.otf", 12, encoding="unic")
+        self.display_unit_behind_measured_value = None
         self.max_settings_pages = 1 # value + 1 = settings pages
 
         # Button
@@ -102,10 +110,13 @@ class wirela_air():
         #Network
         self.wlan0_ip = None
 
+        #Update
+        self.automatic_software_update = None
+
         #Diagnosis
-        self.diagnosis_ative = True
+        self.diagnosis_active = True
         self.connect_to_internet = False
-        if self.diagnosis_ative == True:
+        if self.diagnosis_active == True:
             self.diagnosis = dia_wirela.Wirela_Diagnosis()
 
     def read_settings_data(self):
@@ -115,52 +126,129 @@ class wirela_air():
         try:
             data = open('/home/pi/Wirela_Air_Settings/wirela_air_settings.txt', 'r')
             for i in data:
-                x = re.split('=|"|\n', i)
+                wirela_air_settings_data = re.split('=|"|\n', i)
                 # todo not finish
-                if x[0] == "hardware_watchdog":
-                    if x[2] == "True":
+                if wirela_air_settings_data[0] == "hardware_watchdog":
+                    if wirela_air_settings_data[2] == "True":
                         self.hardware_watchdog = True
                         print("WG on")
-                    if x[2] == "Fasle":
+                    if wirela_air_settings_data[2] == "Fasle":
                         self.hardware_watchdog = False
                         print("WG off")
-                if x[0] == "summer_ative":
-                    if x[2] == "True":
-                        self.summer_ative = True
-                    if x[2] == "Fasle":
-                        self.summer_ative = False
-                if x[0] == "summer_alarm_from":
-                    self.summer_alarm_from = int(x[2])
-                if x[0] == "leds_alarm_ative":
-                    if x[2] == "True":
-                        self.leds_alarm_ative = True
-                    if x[2] == "Fasle":
-                        self.leds_alarm_ative = False
-                if x[0] == "dysplay_notification_ativ":
-                    if x[2] == "True":
-                        self.dysplay_notification_ativ = True
-                    if x[2] == "Fasle":
-                        self.dysplay_notification_ativ = False
-                if x[0] == "diagnosis_ative":
-                    if x[2] == "True":
-                        self.diagnosis_ative = True
-                    if x[2] == "Fasle":
-                        self.diagnosis_ative= False
-                if x[0] == "leds_brightness":
-                    self.leds_brightness = int(x[2])
+
+                if wirela_air_settings_data[0] == "summer_active":
+                    if wirela_air_settings_data[2] == "True":
+                        self.summer_active = True
+                    if wirela_air_settings_data[2] == "Fasle":
+                        self.summer_active = False
+
+                if wirela_air_settings_data[0] == "summer_alarm_from":
+                    self.summer_alarm_from = int(wirela_air_settings_data[2])
+
+                if wirela_air_settings_data[0] == "leds_alarm_active":
+                    if wirela_air_settings_data[2] == "True":
+                        self.leds_alarm_active = True
+                    if wirela_air_settings_data[2] == "Fasle":
+                        self.leds_alarm_active = False
+
+                if wirela_air_settings_data[0] == "display_notification_active":
+                    if wirela_air_settings_data[2] == "True":
+                        self.display_notification_active = True
+                    if wirela_air_settings_data[2] == "Fasle":
+                        self.display_notification_active = False
+
+                if wirela_air_settings_data[0] == "diagnosis_active":
+                    if wirela_air_settings_data[2] == "True":
+                        self.diagnosis_active = True
+                    if wirela_air_settings_data[2] == "Fasle":
+                        self.diagnosis_active= False
+
+                if wirela_air_settings_data[0] == "leds_brightness":
+                    self.leds_brightness = int(wirela_air_settings_data[2])
+
+                if wirela_air_settings_data[0] == "co2_LED_value_optimal":
+                    self.led_1_alarm_0 = int(wirela_air_settings_data[2])
+
+                if wirela_air_settings_data[0] == "co2_LED_value_good":
+                    self.led_1_alarm_1 = int(wirela_air_settings_data[2])
+
+                if wirela_air_settings_data[0] == "co2_LED_value_attention":
+                    self.led_1_alarm_2 = int(wirela_air_settings_data[2])
+
+                if wirela_air_settings_data[0] == "co2_LED_value_alarm":
+                    self.led_1_alarm_3 = int(wirela_air_settings_data[2])
+
+                if wirela_air_settings_data[0] == "voc_LED_value_optimal":
+                    self.led_2_alarm_0 = int(wirela_air_settings_data[2])
+
+                if wirela_air_settings_data[0] == "voc_LED_value_good":
+                    self.led_2_alarm_1 = int(wirela_air_settings_data[2])
+
+                if wirela_air_settings_data[0] == "voc_LED_value_attention":
+                    self.led_2_alarm_2 = int(wirela_air_settings_data[2])
+
+                if wirela_air_settings_data[0] == "voc_LED_value_alarm":
+                    self.led_2_alarm_3 = int(wirela_air_settings_data[2])
+
+                if wirela_air_settings_data[0] == "display_unit_behind_measured_value":
+                    if wirela_air_settings_data[2] == "True":
+                        self.display_unit_behind_measured_value = True
+                    if wirela_air_settings_data[2] == "Fasle":
+                        self.display_unit_behind_measured_value = False
+
+                if wirela_air_settings_data[0] == "display_night_mode":
+                    if wirela_air_settings_data[2] == "True":
+                        self.display_night_mode = True
+                    if wirela_air_settings_data[2] == "Fasle":
+                        self.display_night_mode = False
+
+                if wirela_air_settings_data[0] == "leds_night_mode":
+                    if wirela_air_settings_data[2] == "True":
+                        self.leds_night_mode = True
+                    if wirela_air_settings_data[2] == "Fasle":
+                        self.leds_night_mode = False
+
+                if wirela_air_settings_data[0] == "display_off_time":
+                    self.display_off_time = str(wirela_air_settings_data[2])
+
+                if wirela_air_settings_data[0] == "display_on_time":
+                    self.display_on_time = str(wirela_air_settings_data[2])
+
+                if wirela_air_settings_data[0] == "leds_night_mode_off_time":
+                    self.leds_night_mode_off_time = str(wirela_air_settings_data[2])
+
+                if wirela_air_settings_data[0] == "leds_night_mode_on_time":
+                    self.leds_night_mode_on_time = str(wirela_air_settings_data[2])
+
+                if wirela_air_settings_data[0] == "leds_night_mode_brightness":
+                    self.leds_night_mode_brightness = int(wirela_air_settings_data[2])
+
+                if wirela_air_settings_data[0] == "automatic_software_update":
+                    if wirela_air_settings_data[2] == "True":
+                        self.automatic_update = True
+                    if wirela_air_settings_data[2] == "Fasle":
+                        self.automatic_update = False
+
         except:
             print("Error no wirela_air_settings.txt")
 
     def ping(self):
-        hostname = "raspberrypi.org"
+        """
+        checks whether there is an internet connection to GitHub.
+        """
+        hostname = "github.com"
         response = os.system("ping -c 1 " + hostname)
         if response == 0:
             self.connect_to_internet = True
-            self.diagnosis_ative = True
+            self.diagnosis_active = True
         else:
             self.connect_to_internet = False
-            self.diagnosis_ative = False
+            self.diagnosis_active = False
+
     def update(self):
+        """
+        Here the Wirela_Air directory is deleted and the new version is downloaded from Github.
+        """
         print(os.system("cd /home/pi/"))
         print(os.system("sudo rm -r /home/pi/Wirela_Air"))
         print(os.system("sudo git clone https://github.com/itsnils/Wirela_Air.git"))
@@ -225,7 +313,7 @@ class wirela_air():
         while True:
             try:
                 if not self.co2_median == None:
-                    if self.summer_ative == True and self.co2_median > self.summer_alarm_from:
+                    if self.summer_active == True and self.co2_median > self.summer_alarm_from:
                         if self.summer_reset == False:
                             self.alarm_triggered = True
                             self.pi_gpio.write(21, 1)
@@ -235,7 +323,7 @@ class wirela_air():
                         else:
                             time.sleep(60*15)
                             self.summer_reset = False
-                        if self.summer_ative == False and self.co2_median > self.summer_alarm_from:
+                        if self.summer_active == False and self.co2_median > self.summer_alarm_from:
                             break
                     else:
                         self.pi_gpio.write(21, 0)
@@ -259,7 +347,7 @@ class wirela_air():
         Here you define how the LEDs behave. Depending on the CO2 content and VOC content, the color of the LEDs is changed.
         """
         try:
-            if self.leds_alarm_ative == True:
+            if self.leds_alarm_active == True:
                 if not self.co2_median == None:
                     if self.co2_median < self.led_1_alarm_0:
                         self.dots[0] = (0, 0, self.led_brightness(255))
@@ -312,7 +400,7 @@ class wirela_air():
                     if (self.pi_gpio.read(gpio_button)) == 0:
                         if i == 15:
                             print("Button S1 (+) press >3s")
-                            self.dysplay_notification_ativ = False
+                            self.display_notification_active= False
                             self.button_1_for_3_sec = True
                             time.sleep(0.5)
                     else:
@@ -342,7 +430,7 @@ class wirela_air():
                     if (self.pi_gpio.read(gpio_button)) == 0:
                         if i == 15:
                             print("Button S2 (-) press >3s")
-                            self.dysplay_notification_ativ = True
+                            self.display_notification_active = True
                             self.button_2_for_3_sec = True
                             time.sleep(0.5)
                     else:
@@ -394,7 +482,7 @@ class wirela_air():
         """
         while True:
             try:
-                if self.dysplay_notification_ativ == True:
+                if self.display_notification_active == True:
                     with canvas(self.oled) as draw:
                         if not self.co2_median == None:
                             show_co2 = int(self.co2_median)
@@ -404,7 +492,7 @@ class wirela_air():
                         draw.text((5, 8), str(show_co2), fill="white", font=self.font_1)
                         self.watchdog_oled_display = "active"
                     for i in range(0,50):
-                        if self.dysplay_notification_ativ == True:
+                        if self.display_notification_active == True:
                             time.sleep(0.1)
                         else:
                             break
@@ -413,7 +501,7 @@ class wirela_air():
                         draw.text((5, 8), str(self.temp_median), fill="white", font=self.font_1)
                         self.watchdog_oled_display = "active"
                     for i in range(0,50):
-                        if self.dysplay_notification_ativ == True:
+                        if self.display_notification_active == True:
                             time.sleep(0.1)
                         else:
                             break
@@ -422,7 +510,7 @@ class wirela_air():
                         draw.text((5, 8), str(self.humidity_median), fill="white", font=self.font_1)
                         self.watchdog_oled_display = "active"
                     for i in range(0,50):
-                        if self.dysplay_notification_ativ == True:
+                        if self.display_notification_active == True:
                             time.sleep(0.1)
                         else:
                             break
@@ -431,7 +519,7 @@ class wirela_air():
                 """
                 Settings
                 """
-                if self.dysplay_notification_ativ == False:
+                if self.display_notification_active == False:
                     time.sleep(0.5)
                     print('{}{}'.format("Button pos.", self.button))
                     if self.button == 0:
@@ -519,15 +607,15 @@ class wirela_air():
             self.watchdog_piezo_buzzers = "reset"
             time.sleep(10)
             if self.watchdog_oled_display == "reset":
-                if self.diagnosis_ative == True:
+                if self.diagnosis_active == True:
                     self.diagnosis.writes_to_database("Watchdog Display")
                 self.error_counter = self.error_counter + 1
             if self.watchdog_button == "reset":
-                if self.diagnosis_ative == True:
+                if self.diagnosis_active == True:
                     self.diagnosis.writes_to_database("Watchdog Button")
                 self.error_counter = self.error_counter + 1
             if self.watchdog_scd30 == "reset":
-                if self.diagnosis_ative == True:
+                if self.diagnosis_active == True:
                     self.diagnosis.writes_to_database("Watchdog SCD30")
                 self.error_counter = self.error_counter + 1
             if self.watchdog_piezo_buzzers == "reset":
@@ -537,7 +625,7 @@ class wirela_air():
             if self.watchdog_spg40 == "reset":
                 pass
             if self.watchdog_sht30 == "reset":
-                if self.diagnosis_ative == True:
+                if self.diagnosis_active == True:
                     self.diagnosis.writes_to_database("Watchdog SHT30")
             # reset hardware watchdog
             if self.hardware_watchdog == True:
@@ -546,7 +634,7 @@ class wirela_air():
                 else:
                     self.stop_watchdog()
                     if diagnosis_message_sent == False:
-                        if self.diagnosis_ative == True:
+                        if self.diagnosis_active == True:
                             self.diagnosis.writes_to_database("Watchdog not petted")
                         diagnosis_message_sent = True
 
@@ -557,7 +645,7 @@ class wirela_air():
         self.ping()
         self.read_settings_data()
         self.diagnosis.remember_time_now()
-        if self.diagnosis_ative == True:
+        if self.diagnosis_active == True:
             self.diagnosis.writes_to_database("Start")
         self.read_ip_adr()
         t1 = threading.Thread(target=self.loop)
@@ -571,8 +659,6 @@ class wirela_air():
         print("Start")
         self.software_watchdog_loop()
 
-
 run = wirela_air()
 
 run.main()
-
