@@ -21,21 +21,17 @@ class Wirela_Diagnosis():
         try:
             data = open('/home/pi/Wirela_Air_Settings/mysql_logging.txt', 'r')
             for i in data:
-                x = re.split('=|"|\n', i)
-                if x[0] == "host":
-                    self.host = str(x[2])
-                if x[0] == "port":
-                    self.port = int(x[2])
-                if x[0] == "user":
-                    self.user= str(x[2])
-                if x[0] == "passwd":
-                    self.password = str(x[2])
-                if x[0] == "db":
-                    self.db = str(x[2])
-            print(self.host)
-            print(self.port)
-            print(self.user)
-            print(self.password)
+                file = re.split('=|"|\n', i)
+                if file[0] == "host":
+                    self.host = str(file[2])
+                if file[0] == "port":
+                    self.port = int(file[2])
+                if file[0] == "user":
+                    self.user= str(file[2])
+                if file[0] == "passwd":
+                    self.password = str(file[2])
+                if file[0] == "db":
+                    self.db = str(file[2])
             self.my_db = pymysql.connect(host=self.host, port=self.port, user=self.user, passwd=self.password, db=self.db)
             self.sql_cursor = self.my_db.cursor()
             self.eth_mac = get_mac_address()
