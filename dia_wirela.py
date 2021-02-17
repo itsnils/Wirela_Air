@@ -18,30 +18,30 @@ class Wirela_Diagnosis():
         self.user = None
         self.password = None
         self.db = None
-       # try:
-        data = open('/home/pi/Wirela_Air_Settings/mysql_logging.txt', 'r')
-        for i in data:
-            x = re.split('=|"|\n', i)
-            if x[0] == "host":
-                self.host = str(x[2])
-            if x[0] == "port":
-                self.port = int(x[2])
-            if x[0] == "user":
-                self.user= str(x[2])
-            if x[0] == "password":
-                self.password = str(x[2])
-            if x[0] == "db":
-                self.db = str(x[2])
-        print(self.host)
-        print(self.port)
-        print(self.user)
-        print(self.password)
-        self.my_db = pymysql.connect(host=self.host, port=self.port, user=self.user, passwd=self.password, db=self.db)
-        self.sql_cursor = self.my_db.cursor()
-        self.eth_mac = get_mac_address()
-     #   except:
-     #       print("No access from the mySQL server. The access data to the server are not stored in the settings or there is no internet connection. ")
-     #       print("If you do not have access data in the folder /home/pi/Wirela_Air_Settings/database_login.txt, please contact my administrator.")
+        try:
+            data = open('/home/pi/Wirela_Air_Settings/mysql_logging.txt', 'r')
+            for i in data:
+                x = re.split('=|"|\n', i)
+                if x[0] == "host":
+                    self.host = str(x[2])
+                if x[0] == "port":
+                    self.port = int(x[2])
+                if x[0] == "user":
+                    self.user= str(x[2])
+                if x[0] == "passwd":
+                    self.password = str(x[2])
+                if x[0] == "db":
+                    self.db = str(x[2])
+            print(self.host)
+            print(self.port)
+            print(self.user)
+            print(self.password)
+            self.my_db = pymysql.connect(host=self.host, port=self.port, user=self.user, passwd=self.password, db=self.db)
+            self.sql_cursor = self.my_db.cursor()
+            self.eth_mac = get_mac_address()
+        except:
+            print("No access from the mySQL server. The access data to the server are not stored in the settings or there is no internet connection. ")
+            print("If you do not have access data in the folder /home/pi/Wirela_Air_Settings/database_login.txt, please contact my administrator.")
 
         self.timestamp_start = None
         self.timestamp_now = None
