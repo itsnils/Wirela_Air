@@ -249,7 +249,7 @@ class wirela_air():
 
     def led_brightness(self, color):
         if not color == 0 or self.leds_brightness == 0:
-            brightness = int(color/self.leds_brightness)
+            brightness = int((color/100) * self.leds_brightness)
             print(brightness)
         return brightness
 
