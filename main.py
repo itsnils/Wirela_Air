@@ -26,7 +26,7 @@ class wirela_air():
         Also a buzzer is built so that is alarmed at a horchen CO2 value.
         """
         # current software version
-        self.software_version = "v2.0.20|07.02.21"
+        self.software_version = "v2.0.21|17.02.21"
 
         # Watchdog
         self.software_watchdog = None
@@ -250,6 +250,7 @@ class wirela_air():
     def led_brightness(self, color):
         if not color == 0 or self.leds_brightness == 0:
             brightness = int(color/self.leds_brightness)
+            print(brightness)
         return brightness
 
 
@@ -440,6 +441,7 @@ class wirela_air():
                             draw.text((0, 15), str(self.wlan0_ip), fill="white", font=self.font_2)
                     if self.button == 1:
                         with canvas(self.oled) as draw:
+                            self.button_1_for_3_sec = False
                             draw.text((0, 0), "Settings >  Version", fill="white", font=self.font_2)
                             draw.text((0, 15), str(self.software_version), fill="white", font=self.font_2)
                             draw.text((0, 28), str("Update your software?"), fill="white", font=self.font_2)
@@ -453,6 +455,7 @@ class wirela_air():
                                 self.ping()
                                 time.sleep(5)
                             if self.connect_to_internet == True: #todo Something not right.
+                                self.software_watchdog = False
                                 with canvas(self.oled) as draw:
                                     draw.text((0, 0), "Settings >  Version", fill="white", font=self.font_2)
                                     draw.text((0, 15), str("Software is being updated."), fill="white",font=self.font_2)
@@ -492,7 +495,13 @@ class wirela_air():
         f = open('/dev/watchdog', 'w')
         f.write("S")
         f.close()
-        print("Watchdog Reset")
+        print("Watchdog petting")
+
+    def stop_watchdog(self):
+        f = open('/dev/watchdog', 'w')
+        f.write("V")
+        f.close()
+        print("Watchdog stopped")
 
     def software_watchdog_loop(self):
         """
@@ -536,6 +545,7 @@ class wirela_air():
                 if not self.error_counter >5:
                     self.hardware_watchdog_petting()
                 else:
+                    self.stop_watchdog()
                     if diagnosis_message_sent == False:
                         if self.diagnosis_ative == True:
                             self.diagnosis.writes_to_database("Watchdog not petted")
