@@ -250,7 +250,6 @@ class wirela_air():
     def led_brightness(self, color):
         if not color == 0 or self.leds_brightness == 0:
             brightness = int((color/100) * self.leds_brightness)
-            print(brightness)
         return brightness
 
 
@@ -486,7 +485,7 @@ class wirela_air():
             # self.sensor_spg40()
             self.light_notification()
             if not self.co2_median == None:
-                print(self.co2_median, self.temp_median, self.humidity_median)
+                print('{} CO2| {} Temp. | {} rh'.formate(self.co2_median, self.temp_median, self.humidity_median))
 
     def hardware_watchdog_petting(self):
         """

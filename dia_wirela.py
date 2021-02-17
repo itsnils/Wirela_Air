@@ -19,16 +19,28 @@ class Wirela_Diagnosis():
         self.password = None
         self.db = None
         try:
-            """
-            here the login data for the SQL server are read from the file "database_login.txt".
-            """
-            data = open('/home/pi/Wirela_Air_Settings/database_login.txt', 'r')
-            value = data.read().split(",")
-            self.host = str((value[0]))
-            self.port = int(value[2])
-            self.user = str(value[4])
-            self.password = str(value[6])
-            self.db = str(value[8])
+            data = open('/home/pi/Wirela_Air_Settings/mysql_logging.txt', 'r')
+            for i in data:
+                x = re.split('=|"|\n', i)
+                if x[0] == "host":
+                    self.host = str(x[2])
+                if x[0] == "port":
+                    self.port = int(x[2])
+                if x[0] == "user":
+                    self.user= str(x[2])
+                if x[0] == "host":
+                    self.host = str(x[2])
+                if x[0] == "password":
+                    self.password = str(x[2])
+                if x[0] == "db":
+                    self.db = str(x[2])
+
+
+            self.host = None
+            self.port = None
+            self.user = None
+            self.password = None
+            self.db = None
             self.my_db = pymysql.connect(host=self.host, port=self.port, user=self.user, passwd=self.password, db=self.db)
             self.sql_cursor = self.my_db.cursor()
             self.eth_mac = get_mac_address()
