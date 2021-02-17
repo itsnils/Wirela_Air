@@ -485,7 +485,7 @@ class wirela_air():
             # self.sensor_spg40()
             self.light_notification()
             if not self.co2_median == None:
-                print('{} CO2| {} Temp. | {} rh'.format(self.co2_median, self.temp_median, self.humidity_median))
+                print('{}ppm CO2 | {}°C Temp. | {}% rh'.format(self.co2_median, self.temp_median, self.humidity_median))
 
     def hardware_watchdog_petting(self):
         """

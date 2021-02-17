@@ -28,19 +28,14 @@ class Wirela_Diagnosis():
                     self.port = int(x[2])
                 if x[0] == "user":
                     self.user= str(x[2])
-                if x[0] == "host":
-                    self.host = str(x[2])
                 if x[0] == "password":
                     self.password = str(x[2])
                 if x[0] == "db":
                     self.db = str(x[2])
-
-
-            self.host = None
-            self.port = None
-            self.user = None
-            self.password = None
-            self.db = None
+            print(self.host)
+            print(self.port)
+            print(self.user)
+            print(self.password)
             self.my_db = pymysql.connect(host=self.host, port=self.port, user=self.user, passwd=self.password, db=self.db)
             self.sql_cursor = self.my_db.cursor()
             self.eth_mac = get_mac_address()
