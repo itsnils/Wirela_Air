@@ -12,6 +12,7 @@ from luma.oled.device import ssd1306, ssd1325, ssd1331, sh1106
 from PIL import ImageFont
 from subprocess import *
 import dia_wirela
+import Sensirion_SGP40
 import os
 import re
 
@@ -49,9 +50,14 @@ class wirela_air():
         self.scd30 = SCD30()
         self.scd30.set_measurement_interval(2)
         self.scd30.start_periodic_measurement()
-        # Sensirion SGP40 todo sensor is not in operation. VOC algorithm must be programmed first.
-        self.tvoc = None
-        self.tvoc_median = None
+
+        # Sensirion SGP40
+        self.voc = None
+        self.voc_median = None
+        self.voc_average_list = []
+        self.sgp40_warm_up = False
+        self.sgp40 = Sensirion_SGP40.Sensirion_SGP40(bus=1, relative_humidity=50, temperature_c=25)
+
         # Sensirion SHT30
         self.temp = None
         self.temp_median = None
@@ -291,6 +297,20 @@ class wirela_air():
         except:
             self.watchdog_scd30 = "inactive"
 
+    def sensor_sgp40(self):
+        try:
+            if self.sgp40_warm_up == False:
+                self.sgp40.begin(10)
+                self.sgp40_warm_up = True
+            if not self.temp_median or self.humidity_median == None:
+                self.sgp40.set_envparams(self.humidity_median, self.temp_median)
+                self.voc = self.sgp40.get_voc_index()
+                self.voc_median = self.running_average(self.voc_average_list, self.voc_median)
+                self.watchdog_spg40 = "active"
+        except:
+            self.watchdog_spg40 = "inactive"
+
+
 
     def running_average(self, value_list, input_value, number_of_values):
         """
@@ -497,6 +517,15 @@ class wirela_air():
                         else:
                             break
                     with canvas(self.oled) as draw:
+                        draw.text((0, 0), "VOC Index", fill="white", font=self.font_2)
+                        draw.text((5, 8), str(self.voc_median), fill="white", font=self.font_1)
+                        self.watchdog_oled_display = "active"
+                    for i in range(0,50):
+                        if self.display_notification_active == True:
+                            time.sleep(0.1)
+                        else:
+                            break
+                    with canvas(self.oled) as draw:
                         draw.text((0, 0), "Temprature [ °C ] ", fill="white", font=self.font_2)
                         draw.text((5, 8), str(self.temp_median), fill="white", font=self.font_1)
                         self.watchdog_oled_display = "active"
@@ -570,7 +599,7 @@ class wirela_air():
         while True:
             self.sensor_sht30()
             self.sensor_scd30()
-            # self.sensor_spg40()
+            self.sensor_sgp40()
             self.light_notification()
             if not self.co2_median == None:
                 print('| {}ppm CO2 | {}°C Temp. | {}% rh |'.format(self.co2_median, self.temp_median, self.humidity_median))
@@ -623,13 +652,15 @@ class wirela_air():
             if self.watchdog_code == "reset":
                 pass
             if self.watchdog_spg40 == "reset":
-                pass
+                if self.diagnosis_active == True:
+                    self.diagnosis.writes_to_database("Watchdog SGP40")
+                self.error_counter = self.error_counter + 1
             if self.watchdog_sht30 == "reset":
                 if self.diagnosis_active == True:
                     self.diagnosis.writes_to_database("Watchdog SHT30")
             # reset hardware watchdog
             if self.hardware_watchdog == True:
-                if not self.error_counter >5:
+                if not self.error_counter >6:
                     self.hardware_watchdog_petting()
                 else:
                     self.stop_watchdog()
