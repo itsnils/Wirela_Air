@@ -1,5 +1,3 @@
-yes | sudo apt update
-yes | sudo apt full-upgrade
 yes | sudo apt install python3-pip
 yes | sudo apt-get install python-pigpio python3-pigpio
 yes | sudo apt-get install libopenjp2-7

@@ -22,7 +22,7 @@ Wirela Air is based on a Raspberry Pi Zero and the following components are sold
 * USB - C input.
 
 
-# Instalazion
+# installation
 * Take the micro SD card and insert it into your card reader on the PC
 * write the micro SD card with the newest Raspberry Pi OS Lite
 * Take the micro SD card out of the card reader and put it again into the PC.
@@ -55,6 +55,7 @@ network={
 * install git on the raspberry pi with the command.
 
 ````
+yes | sudo apt update
 yes | sudo apt install git
 ````
 
