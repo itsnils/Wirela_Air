@@ -27,7 +27,7 @@ class wirela_air():
         Also a buzzer is built so that is alarmed at a horchen CO2 value.
         """
         # current software version
-        self.software_version = "v2.0.21|17.02.21"
+        self.software_version = "v2.0.22|01.04.21"
 
         # Watchdog
         self.software_watchdog = None
@@ -90,10 +90,10 @@ class wirela_air():
         self.led_1_alarm_3 = 1200   # alarm     - alarm 3 = Red
         # LED 2 bottom
         self.led_2_color = None
-        self.led_2_alarm_0 = 20     # alarm 0 = Blue
-        self.led_2_alarm_1 = 50     # alarm 1 = Green
-        self.led_2_alarm_2 = 100    # alarm 2 = Orange
-        self.led_2_alarm_3 = 150    # alarm 3 = Red
+        self.led_2_alarm_0 = 50     # alarm 0 = Blue
+        self.led_2_alarm_1 = 150    # alarm 1 = Green
+        self.led_2_alarm_2 = 200    # alarm 2 = Orange
+        self.led_2_alarm_3 = 300    # alarm 3 = Red
         self.dots = dotstar.DotStar(board.SCK, board.MOSI, 2, brightness=0.2)
 
         # OLED Dysplay
@@ -387,17 +387,17 @@ class wirela_air():
                 else:
                     self.dots[0] = (0, 0, 0)
 
-                if not self.tvoc_median == None:
-                    if self.tvoc_median < self.led_2_alarm_0:
+                if not self.voc_median == None:
+                    if self.voc_median < self.led_2_alarm_0:
                         self.dots[1] = (0, 0, self.led_brightness(255))
                         self.led_1_color = "blue"
-                    if self.tvoc_median > self.led_2_alarm_1:
+                    if self.voc_median > self.led_2_alarm_1:
                         self.dots[1] = (0, self.led_brightness(255), 0)
                         self.led_1_color = "green"
-                    if self.tvoc_median > self.led_2_alarm_2:
+                    if self.voc_median > self.led_2_alarm_2:
                         self.dots[1] = (self.led_brightness(255), self.led_brightness(128), 0)
                         self.led_1_color = "orange"
-                    if self.tvoc_median > self.led_2_alarm_3:
+                    if self.voc_median > self.led_2_alarm_3:
                         self.dots[1] = (self.led_brightness(255), 0, 0)
                         self.led_1_color = "reed"
                 else:
