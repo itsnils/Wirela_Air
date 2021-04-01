@@ -302,14 +302,15 @@ class wirela_air():
             if self.sgp40_warm_up == False:
                 self.sgp40.begin(10)
                 self.sgp40_warm_up = True
-            if not self.temp_median or self.humidity_median == None:
-                self.sgp40.set_envparams(self.humidity_median, self.temp_median)
-                self.voc = self.sgp40.get_voc_index()
-                self.voc_median = self.running_average(self.voc_average_list, self.voc_median)
-                self.watchdog_spg40 = "active"
+
+            if self.sgp40_warm_up == True:
+                if not self.temp_median is None or self.humidity_median is None:
+                    self.sgp40.set_envparams(self.humidity_median, self.temp_median)
+                    self.voc = self.sgp40.get_voc_index()
+                    self.voc_median = int(self.running_average(self.voc_average_list, self.voc, 30))
+                    self.watchdog_spg40 = "active"
         except:
             self.watchdog_spg40 = "inactive"
-
 
 
     def running_average(self, value_list, input_value, number_of_values):
@@ -320,6 +321,8 @@ class wirela_air():
         :param number_of_values:
         """
         value_list.append(input_value)
+        if len(value_list) <= 1:
+            output_average = None
         if len(value_list) > 1:
             output_average = round(statistics.median(value_list), 1)
         if len(value_list) > 60:
@@ -602,7 +605,7 @@ class wirela_air():
             self.sensor_sgp40()
             self.light_notification()
             if not self.co2_median == None:
-                print('| {}ppm CO2 | {}°C Temp. | {}% rh |'.format(self.co2_median, self.temp_median, self.humidity_median))
+                print('| {}ppm CO2 | VOC index {} |{}°C Temp. | {}% rh |'.format(self.co2_median, self.voc_median, self.temp_median, self.humidity_median))
 
     def hardware_watchdog_petting(self):
         """
